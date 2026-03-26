@@ -1,1 +1,725 @@
-﻿
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ #{{ order.id }} - TopStore</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2a 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(20, 20, 40, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(156, 39, 176, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo h2 {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #9c27b0;
+        }
+
+        .cart-icon {
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: #9c27b0;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .logout-btn {
+            background: rgba(156, 39, 176, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #9c27b0;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Breadcrumbs */
+        .breadcrumbs {
+            margin-bottom: 2rem;
+            font-size: 14px;
+        }
+
+        .breadcrumbs a {
+            color: #9c27b0;
+            text-decoration: none;
+        }
+
+        .breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumbs span {
+            color: #aaa;
+        }
+
+        /* Page Title */
+        .page-title {
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Order Status */
+        .order-status {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(156, 39, 176, 0.2);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .status-pending {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        .status-processing {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+            border: 1px solid #2196f3;
+        }
+
+        .status-shipped {
+            background: rgba(156, 39, 176, 0.2);
+            color: #9c27b0;
+            border: 1px solid #9c27b0;
+        }
+
+        .status-delivered {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status-cancelled {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .order-date {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Order Layout */
+        .order-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        /* Order Items */
+        .order-items {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(156, 39, 176, 0.2);
+        }
+
+        .order-items h3 {
+            margin-bottom: 1.5rem;
+            color: #9c27b0;
+        }
+
+        .order-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-info h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .item-info h4 a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .item-info h4 a:hover {
+            color: #9c27b0;
+        }
+
+        .item-price {
+            font-size: 14px;
+            color: #9c27b0;
+        }
+
+        .item-quantity {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .item-total {
+            font-weight: bold;
+            font-size: 16px;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        /* Order Info */
+        .order-info {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(156, 39, 176, 0.2);
+        }
+
+        .order-info h3 {
+            margin-bottom: 1.5rem;
+            color: #9c27b0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #aaa;
+        }
+
+        .info-value {
+            text-align: right;
+        }
+
+        /* Delivery Info */
+        .delivery-info {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(156, 39, 176, 0.2);
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(156, 39, 176, 0.3);
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .order-summary h3 {
+            margin-bottom: 1.5rem;
+            color: #9c27b0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-row.total {
+            border-top: 2px solid #9c27b0;
+            border-bottom: none;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .cancel-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            border-radius: 10px;
+            color: #f44336;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cancel-btn:hover {
+            background: rgba(244, 67, 54, 0.4);
+        }
+
+        .repeat-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(156, 39, 176, 0.3);
+            border: 1px solid #9c27b0;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .repeat-btn:hover {
+            background: #9c27b0;
+        }
+
+        /* Track Order */
+        .track-order {
+            margin-top: 1.5rem;
+        }
+
+        .track-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        .track-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle.completed {
+            background: #9c27b0;
+        }
+
+        .step-circle.active {
+            background: #ff9800;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 152, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 152, 0, 0);
+            }
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .step-label.completed {
+            color: #9c27b0;
+        }
+
+        .step-label.active {
+            color: #ff9800;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .order-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .order-item {
+                flex-wrap: wrap;
+            }
+
+            .item-total {
+                text-align: left;
+                margin-left: 90px;
+            }
+
+            .track-steps {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .page-title {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h2>TopStore</h2>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Главная</a>
+            <a href="{{ url_for('catalog') }}">Каталог</a>
+            <a href="{{ url_for('profile') }}" style="color: #9c27b0;">Профиль</a>
+            <a href="{{ url_for('cart') }}" class="cart-icon">
+                🛒
+                {% if cart_count > 0 %}
+                <span class="cart-count">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="breadcrumbs">
+            <a href="{{ url_for('home') }}">Главная</a> /
+            <a href="{{ url_for('profile') }}">Личный кабинет</a> /
+            <a href="{{ url_for('orders') }}">Мои заказы</a> /
+            <span>Заказ #{{ order.id }}</span>
+        </div>
+
+        <div class="page-title">
+            <h1>Заказ #{{ order.id }}</h1>
+            <div class="order-date">от {{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+        </div>
+
+        <div class="order-status">
+            <div class="status-badge status-{{ order.status }}">
+                {% if order.status == 'pending' %}⏳ Ожидает подтверждения
+                {% elif order.status == 'processing' %}🔄 В обработке
+                {% elif order.status == 'shipped' %}🚚 Отправлен
+                {% elif order.status == 'delivered' %}✅ Доставлен
+                {% elif order.status == 'cancelled' %}❌ Отменен
+                {% else %}{{ order.status }}
+                {% endif %}
+            </div>
+
+            {% if order.status != 'delivered' and order.status != 'cancelled' %}
+            <div class="track-order">
+                <div class="track-steps">
+                    <div class="track-step">
+                        <div class="step-circle {% if order.status in ['pending', 'processing', 'shipped', 'delivered'] %}completed{% endif %}">
+                            📝
+                        </div>
+                        <div class="step-label {% if order.status in ['pending', 'processing', 'shipped', 'delivered'] %}completed{% endif %}">
+                            Оформлен
+                        </div>
+                    </div>
+                    <div class="track-step">
+                        <div class="step-circle {% if order.status in ['processing', 'shipped', 'delivered'] %}completed{% endif %} {% if order.status == 'processing' %}active{% endif %}">
+                            🔧
+                        </div>
+                        <div class="step-label {% if order.status in ['processing', 'shipped', 'delivered'] %}completed{% endif %} {% if order.status == 'processing' %}active{% endif %}">
+                            Обработка
+                        </div>
+                    </div>
+                    <div class="track-step">
+                        <div class="step-circle {% if order.status in ['shipped', 'delivered'] %}completed{% endif %} {% if order.status == 'shipped' %}active{% endif %}">
+                            🚚
+                        </div>
+                        <div class="step-label {% if order.status in ['shipped', 'delivered'] %}completed{% endif %} {% if order.status == 'shipped' %}active{% endif %}">
+                            Доставка
+                        </div>
+                    </div>
+                    <div class="track-step">
+                        <div class="step-circle {% if order.status == 'delivered' %}completed active{% endif %}">
+                            ✅
+                        </div>
+                        <div class="step-label {% if order.status == 'delivered' %}completed active{% endif %}">
+                            Получен
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="order-layout">
+            <div>
+                <!-- Order Items -->
+                <div class="order-items">
+                    <h3>Товары в заказе</h3>
+                    {% for item in order.items %}
+                    <div class="order-item">
+                        <div class="item-image">
+                            <img src="{{ item.image_url or '/static/images/placeholder.jpg' }}" alt="{{ item.product_name }}">
+                        </div>
+                        <div class="item-info">
+                            <h4><a href="{{ url_for('product_detail', product_id=item.product_id) }}">{{ item.product_name }}</a></h4>
+                            <div class="item-price">{{ item.price }} ₽</div>
+                            <div class="item-quantity">Количество: {{ item.quantity }}</div>
+                        </div>
+                        <div class="item-total">
+                            {{ item.price * item.quantity }} ₽
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Delivery Information -->
+                <div class="delivery-info">
+                    <h3>Информация о доставке</h3>
+                    <div class="info-row">
+                        <span class="info-label">Получатель:</span>
+                        <span class="info-value">{{ order.full_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Телефон:</span>
+                        <span class="info-value">{{ order.phone }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ order.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Адрес доставки:</span>
+                        <span class="info-value">{{ order.city }}, {{ order.address }}</span>
+                    </div>
+                    {% if order.postal_code %}
+                    <div class="info-row">
+                        <span class="info-label">Почтовый индекс:</span>
+                        <span class="info-value">{{ order.postal_code }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="info-row">
+                        <span class="info-label">Способ доставки:</span>
+                        <span class="info-value">
+                            {% if order.delivery_method == 'courier' %}Курьерская доставка
+                            {% elif order.delivery_method == 'pickup' %}Самовывоз
+                            {% elif order.delivery_method == 'post' %}Почта России
+                            {% else %}{{ order.delivery_method }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Способ оплаты:</span>
+                        <span class="info-value">
+                            {% if order.payment_method == 'card' %}Банковская карта
+                            {% elif order.payment_method == 'cash' %}Наличные при получении
+                            {% elif order.payment_method == 'online' %}Онлайн-оплата
+                            {% else %}{{ order.payment_method }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if order.comment %}
+                    <div class="info-row">
+                        <span class="info-label">Комментарий:</span>
+                        <span class="info-value">{{ order.comment }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div>
+                <div class="order-summary">
+                    <h3>Сумма заказа</h3>
+                    <div class="summary-row">
+                        <span>Товары ({{ order.total_quantity }} шт.)</span>
+                        <span>{{ order.subtotal }} ₽</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Доставка</span>
+                        <span>
+                            {% if order.delivery_cost == 0 %}Бесплатно
+                            {% else %}{{ order.delivery_cost }} ₽
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if order.discount > 0 %}
+                    <div class="summary-row">
+                        <span>Скидка</span>
+                        <span style="color: #4caf50;">-{{ order.discount }} ₽</span>
+                    </div>
+                    {% endif %}
+                    <div class="summary-row total">
+                        <span>Итого</span>
+                        <span style="color: #9c27b0; font-size: 24px;">{{ order.total }} ₽</span>
+                    </div>
+
+                    {% if order.status == 'pending' %}
+                    <div class="action-buttons">
+                        <button class="cancel-btn" onclick="cancelOrder({{ order.id }})">Отменить заказ</button>
+                        <a href="{{ url_for('repeat_order', order_id=order.id) }}" class="repeat-btn">Повторить заказ</a>
+                    </div>
+                    {% elif order.status != 'cancelled' %}
+                    <div class="action-buttons">
+                        <a href="{{ url_for('repeat_order', order_id=order.id) }}" class="repeat-btn">Повторить заказ</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if order.tracking_number %}
+                <div class="order-info" style="margin-top: 1rem;">
+                    <h3>Отслеживание</h3>
+                    <div class="info-row">
+                        <span class="info-label">Трек-номер:</span>
+                        <span class="info-value">{{ order.tracking_number }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function cancelOrder(orderId) {
+            if (confirm('Вы уверены, что хотите отменить заказ?')) {
+                fetch(`{{ url_for('cancel_order') }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert(data.error || 'Ошибка при отмене заказа');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

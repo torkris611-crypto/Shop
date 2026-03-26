@@ -1,1 +1,598 @@
-﻿
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформление заказа - TopStore</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2a 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(20, 20, 40, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(156, 39, 176, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo h2 {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #9c27b0;
+        }
+
+        .cart-icon {
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: #9c27b0;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .logout-btn {
+            background: rgba(156, 39, 176, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #9c27b0;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Title */
+        .page-title {
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page-title h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Checkout Layout */
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        /* Forms */
+        .form-section {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(156, 39, 176, 0.2);
+        }
+
+        .form-section h3 {
+            margin-bottom: 1.5rem;
+            color: #9c27b0;
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(156, 39, 176, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #9c27b0;
+            box-shadow: 0 0 10px rgba(156, 39, 176, 0.3);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Delivery Methods */
+        .delivery-method,
+        .payment-method {
+            margin-bottom: 1rem;
+        }
+
+        .delivery-option,
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(156, 39, 176, 0.2);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .delivery-option:hover,
+        .payment-option:hover {
+            background: rgba(156, 39, 176, 0.1);
+            border-color: #9c27b0;
+        }
+
+        .delivery-option input,
+        .payment-option input {
+            margin-right: 12px;
+            width: auto;
+        }
+
+        .delivery-option label,
+        .payment-option label {
+            flex: 1;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .delivery-price {
+            color: #9c27b0;
+            font-weight: bold;
+        }
+
+        /* Order Summary */
+        .order-summary {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(156, 39, 176, 0.3);
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .order-summary h3 {
+            margin-bottom: 1.5rem;
+            color: #9c27b0;
+        }
+
+        .cart-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cart-item-image {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .cart-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-info h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .cart-item-price {
+            font-size: 12px;
+            color: #9c27b0;
+        }
+
+        .cart-item-quantity {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .cart-item-total {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-row.total {
+            border-top: 2px solid #9c27b0;
+            border-bottom: none;
+            margin-top: 10px;
+            padding-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .place-order-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .place-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(156, 39, 176, 0.4);
+        }
+
+        /* Error Message */
+        .error-message {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            color: #f44336;
+            text-align: center;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .checkout-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h2>TopStore</h2>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Главная</a>
+            <a href="{{ url_for('catalog') }}">Каталог</a>
+            <a href="{{ url_for('profile') }}">Профиль</a>
+            <a href="{{ url_for('cart') }}" class="cart-icon">
+                🛒
+                {% if cart_count > 0 %}
+                <span class="cart-count">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>Оформление заказа</h1>
+            <p style="color: #aaa; margin-top: 10px;">Заполните данные для доставки</p>
+        </div>
+
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        {% if cart_items and cart_items|length > 0 %}
+        <div class="checkout-layout">
+            <form method="POST" action="{{ url_for('create_order') }}" id="orderForm">
+                <!-- Contact Information -->
+                <div class="form-section">
+                    <h3>Контактная информация</h3>
+                    <div class="form-group">
+                        <label for="full_name">ФИО *</label>
+                        <input type="text" id="full_name" name="full_name" value="{{ user.full_name or user.username }}" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Телефон *</label>
+                            <input type="tel" id="phone" name="phone" value="{{ user.phone or '' }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Address -->
+                <div class="form-section">
+                    <h3>Адрес доставки</h3>
+                    <div class="form-group">
+                        <label for="city">Город *</label>
+                        <input type="text" id="city" name="city" value="{{ user.city or '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Улица, дом, квартира *</label>
+                        <input type="text" id="address" name="address" value="{{ user.address or '' }}" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="postal_code">Почтовый индекс</label>
+                            <input type="text" id="postal_code" name="postal_code" value="{{ user.postal_code or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="entrance">Подъезд/Этаж</label>
+                            <input type="text" id="entrance" name="entrance" placeholder="Необязательно">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Method -->
+                <div class="form-section">
+                    <h3>Способ доставки</h3>
+                    <div class="delivery-method">
+                        <div class="delivery-option" onclick="selectDelivery('courier')">
+                            <input type="radio" name="delivery_method" id="delivery_courier" value="courier" checked>
+                            <label for="delivery_courier">
+                                <strong>Курьерская доставка</strong><br>
+                                <small>Доставка по городу</small>
+                            </label>
+                            <span class="delivery-price">300 ₽</span>
+                        </div>
+                        <div class="delivery-option" onclick="selectDelivery('pickup')">
+                            <input type="radio" name="delivery_method" id="delivery_pickup" value="pickup">
+                            <label for="delivery_pickup">
+                                <strong>Самовывоз</strong><br>
+                                <small>Из пункта выдачи</small>
+                            </label>
+                            <span class="delivery-price">Бесплатно</span>
+                        </div>
+                        <div class="delivery-option" onclick="selectDelivery('post')">
+                            <input type="radio" name="delivery_method" id="delivery_post" value="post">
+                            <label for="delivery_post">
+                                <strong>Почта России</strong><br>
+                                <small>Доставка по всей России</small>
+                            </label>
+                            <span class="delivery-price">350 ₽</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="form-section">
+                    <h3>Способ оплаты</h3>
+                    <div class="payment-method">
+                        <div class="payment-option" onclick="selectPayment('card')">
+                            <input type="radio" name="payment_method" id="payment_card" value="card" checked>
+                            <label for="payment_card">
+                                <strong>Банковская карта</strong><br>
+                                <small>Visa, Mastercard, МИР</small>
+                            </label>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('cash')">
+                            <input type="radio" name="payment_method" id="payment_cash" value="cash">
+                            <label for="payment_cash">
+                                <strong>Наличными при получении</strong><br>
+                                <small>Оплата курьеру</small>
+                            </label>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment('online')">
+                            <input type="radio" name="payment_method" id="payment_online" value="online">
+                            <label for="payment_online">
+                                <strong>Онлайн-оплата</strong><br>
+                                <small>СБП, ЮMoney, Qiwi</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comment -->
+                <div class="form-section">
+                    <h3>Комментарий к заказу</h3>
+                    <div class="form-group">
+                        <textarea name="comment" placeholder="Пожелания по доставке, удобное время, особые отметки..."></textarea>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <h3>Ваш заказ</h3>
+                <div class="cart-items">
+                    {% for item in cart_items %}
+                    <div class="cart-item">
+                        <div class="cart-item-image">
+                            <img src="{{ item.image_url or '/static/images/placeholder.jpg' }}" alt="{{ item.name }}">
+                        </div>
+                        <div class="cart-item-info">
+                            <h4>{{ item.name }}</h4>
+                            <div class="cart-item-price">{{ item.price }} ₽</div>
+                            <div class="cart-item-quantity">Кол-во: {{ item.quantity }}</div>
+                        </div>
+                        <div class="cart-item-total">
+                            {{ item.price * item.quantity }} ₽
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="summary-row">
+                    <span>Товары ({{ total_quantity }} шт.)</span>
+                    <span>{{ subtotal }} ₽</span>
+                </div>
+                <div class="summary-row" id="deliveryRow">
+                    <span>Доставка</span>
+                    <span id="deliveryCost">300 ₽</span>
+                </div>
+                {% if discount > 0 %}
+                <div class="summary-row">
+                    <span>Скидка</span>
+                    <span style="color: #4caf50;">-{{ discount }} ₽</span>
+                </div>
+                {% endif %}
+                <div class="summary-row total">
+                    <span>Итого к оплате</span>
+                    <span id="totalAmount" style="color: #9c27b0; font-size: 24px;">{{ total }} ₽</span>
+                </div>
+
+                <button type="submit" form="orderForm" class="place-order-btn">Подтвердить заказ</button>
+
+                <p style="font-size: 12px; color: #aaa; text-align: center; margin-top: 15px;">
+                    Нажимая кнопку, вы соглашаетесь с условиями обработки персональных данных
+                </p>
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 4rem; background: rgba(20,20,40,0.6); border-radius: 20px;">
+            <div style="font-size: 60px; margin-bottom: 20px;">🛒</div>
+            <h2>Корзина пуста</h2>
+            <p style="color: #aaa; margin-bottom: 20px;">Добавьте товары в корзину, чтобы оформить заказ</p>
+            <a href="{{ url_for('catalog') }}" class="place-order-btn" style="display: inline-block; width: auto; padding: 12px 30px; text-decoration: none;">Перейти в каталог</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        const deliveryCosts = {
+            'courier': 300,
+            'pickup': 0,
+            'post': 350
+        };
+
+        function selectDelivery(method) {
+            document.getElementById(`delivery_${method}`).checked = true;
+            updateTotal();
+        }
+
+        function selectPayment(method) {
+            document.getElementById(`payment_${method}`).checked = true;
+        }
+
+        function updateTotal() {
+            const selectedDelivery = document.querySelector('input[name="delivery_method"]:checked');
+            if (!selectedDelivery) return;
+
+            const deliveryMethod = selectedDelivery.value;
+            const deliveryCost = deliveryCosts[deliveryMethod] || 0;
+            const subtotal = {{ subtotal }};
+            const discount = {{ discount }};
+
+            const total = subtotal + deliveryCost - discount;
+
+            document.getElementById('deliveryCost').textContent = deliveryCost === 0 ? 'Бесплатно' : `${deliveryCost} ₽`;
+            document.getElementById('totalAmount').textContent = `${total} ₽`;
+        }
+
+        // Listen for delivery method changes
+        document.querySelectorAll('input[name="delivery_method"]').forEach(radio => {
+            radio.addEventListener('change', updateTotal);
+        });
+    </script>
+</body>
+</html>

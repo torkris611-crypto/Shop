@@ -1,1 +1,561 @@
-﻿
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет - TopStore</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2a 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(20, 20, 40, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(156, 39, 176, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo h2 {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #9c27b0;
+        }
+
+        .cart-icon {
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: #9c27b0;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .logout-btn {
+            background: rgba(156, 39, 176, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #9c27b0;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            background: rgba(20, 20, 40, 0.8);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .user-info h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .user-info p {
+            color: #9c27b0;
+            margin-bottom: 5px;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 2rem;
+            margin-left: auto;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #9c27b0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(156, 39, 176, 0.3);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab.active {
+            color: #9c27b0;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #9c27b0;
+        }
+
+        .tab:hover {
+            color: #9c27b0;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Orders */
+        .order-card {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(156, 39, 176, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .order-card:hover {
+            transform: translateX(5px);
+            border-color: rgba(156, 39, 176, 0.5);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .order-id {
+            font-weight: bold;
+            color: #9c27b0;
+        }
+
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .status-delivered {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .status-processing {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .status-shipped {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+
+        .order-items {
+            margin: 1rem 0;
+            padding-left: 1rem;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .order-total {
+            text-align: right;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        /* Profile Form */
+        .profile-form {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 15px;
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(156, 39, 176, 0.3);
+            border-radius: 10px;
+            color: #fff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #9c27b0;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(156, 39, 176, 0.4);
+        }
+
+        /* Favorites */
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .favorite-item {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 15px;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .favorite-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .favorite-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .favorite-item h4 {
+            margin-bottom: 8px;
+        }
+
+        .favorite-item .price {
+            color: #9c27b0;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .remove-fav {
+            background: none;
+            border: none;
+            color: #f44336;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* Success Message */
+        .success-message {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            color: #4caf50;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .user-stats {
+                margin-left: 0;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h2>TopStore</h2>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Главная</a>
+            <a href="{{ url_for('catalog') }}">Каталог</a>
+            <a href="{{ url_for('profile') }}" style="color: #9c27b0;">Профиль</a>
+            <a href="{{ url_for('cart') }}" class="cart-icon">
+                🛒
+                {% if cart_count > 0 %}
+                <span class="cart-count">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Выйти</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if success %}
+        <div class="success-message">
+            {{ success }}
+        </div>
+        {% endif %}
+
+        <div class="profile-header">
+            <div class="avatar">
+                {{ user.username[0]|upper }}
+            </div>
+            <div class="user-info">
+                <h1>{{ user.username }}</h1>
+                <p>{{ user.email }}</p>
+                <p>📞 {{ user.phone or 'Не указан' }}</p>
+                <p>📅 Зарегистрирован: {{ user.created_at.strftime('%d.%m.%Y') if user.created_at else 'Недавно' }}</p>
+            </div>
+            <div class="user-stats">
+                <div class="stat">
+                    <div class="stat-number">{{ orders|length }}</div>
+                    <div class="stat-label">Заказов</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">{{ favorites|length }}</div>
+                    <div class="stat-label">Избранное</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="orders">📦 Мои заказы</button>
+            <button class="tab" data-tab="profile">👤 Личные данные</button>
+            <button class="tab" data-tab="favorites">❤️ Избранное</button>
+        </div>
+
+        <!-- Orders Tab -->
+        <div class="tab-content active" id="orders">
+            {% if orders %}
+                {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-id">Заказ #{{ order.id }}</span>
+                        <span class="order-status status-{{ order.status }}">
+                            {% if order.status == 'delivered' %}Доставлен
+                            {% elif order.status == 'processing' %}В обработке
+                            {% elif order.status == 'shipped' %}Отправлен
+                            {% else %}{{ order.status }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="order-items">
+                        {% for item in order.items %}
+                        <div class="order-item">
+                            <span>{{ item.product_name }}</span>
+                            <span>{{ item.quantity }} x {{ item.price }} ₽</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="order-total">
+                        Итого: {{ order.total }} ₽
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 3rem; background: rgba(20,20,40,0.6); border-radius: 15px;">
+                    <p>У вас пока нет заказов</p>
+                    <a href="{{ url_for('catalog') }}" style="color: #9c27b0; text-decoration: none;">Перейти в каталог</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Profile Tab -->
+        <div class="tab-content" id="profile">
+            <form class="profile-form" method="POST" action="{{ url_for('update_profile') }}">
+                <div class="form-group">
+                    <label for="username">Имя пользователя</label>
+                    <input type="text" id="username" name="username" value="{{ user.username }}">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="tel" id="phone" name="phone" value="{{ user.phone or '' }}">
+                </div>
+                <div class="form-group">
+                    <label for="address">Адрес доставки</label>
+                    <input type="text" id="address" name="address" value="{{ user.address or '' }}">
+                </div>
+                <button type="submit" class="btn-save">Сохранить изменения</button>
+            </form>
+        </div>
+
+        <!-- Favorites Tab -->
+        <div class="tab-content" id="favorites">
+            {% if favorites %}
+            <div class="favorites-grid">
+                {% for item in favorites %}
+                <div class="favorite-item">
+                    <img src="{{ item.image_url or '/static/images/placeholder.jpg' }}" alt="{{ item.name }}">
+                    <h4>{{ item.name }}</h4>
+                    <div class="price">{{ item.price }} ₽</div>
+                    <button class="remove-fav" onclick="removeFromFavorites({{ item.id }})">Удалить</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 3rem; background: rgba(20,20,40,0.6); border-radius: 15px;">
+                <p>У вас пока нет избранных товаров</p>
+                <a href="{{ url_for('catalog') }}" style="color: #9c27b0; text-decoration: none;">Перейти в каталог</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        const contents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        function removeFromFavorites(productId) {
+            if (confirm('Удалить товар из избранного?')) {
+                fetch(`{{ url_for('remove_favorite') }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

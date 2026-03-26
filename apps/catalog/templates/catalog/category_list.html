@@ -1,1 +1,264 @@
-﻿
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Категории - TopStore</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2a 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(20, 20, 40, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(156, 39, 176, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo h2 {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #9c27b0;
+        }
+
+        .cart-icon {
+            position: relative;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: #9c27b0;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+
+        .logout-btn {
+            background: rgba(156, 39, 176, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #9c27b0;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Title */
+        .page-title {
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page-title h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Categories Grid */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .category-card {
+            background: rgba(20, 20, 40, 0.6);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(156, 39, 176, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: #fff;
+            display: block;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            border-color: #9c27b0;
+            box-shadow: 0 10px 30px rgba(156, 39, 176, 0.3);
+        }
+
+        .category-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .category-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .category-card:hover .category-image img {
+            transform: scale(1.1);
+        }
+
+        .category-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(123, 31, 162, 0.5));
+        }
+
+        .category-info {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .category-info h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #9c27b0;
+        }
+
+        .category-info p {
+            color: #aaa;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .product-count {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(156, 39, 176, 0.3);
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 18px;
+            color: #9c27b0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .categories-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <h2>TopStore</h2>
+        </div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Главная</a>
+            <a href="{{ url_for('catalog') }}" style="color: #9c27b0;">Каталог</a>
+            <a href="{{ url_for('profile') }}">Профиль</a>
+            <a href="{{ url_for('cart') }}" class="cart-icon">
+                🛒
+                {% if cart_count > 0 %}
+                <span class="cart-count">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+            {% if current_user %}
+            <a href="{{ url_for('logout') }}" class="logout-btn">Выйти</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">
+            <h1>Категории товаров</h1>
+            <p style="color: #aaa; margin-top: 10px;">Выберите интересующую категорию</p>
+        </div>
+
+        {% if categories %}
+        <div class="categories-grid">
+            {% for category in categories %}
+            <a href="{{ url_for('product_list', category_id=category.id) }}" class="category-card">
+                <div class="category-image">
+                    <img src="{{ category.image_url or '/static/images/category-placeholder.jpg' }}" alt="{{ category.name }}">
+                    <div class="category-overlay"></div>
+                </div>
+                <div class="category-info">
+                    <h3>{{ category.name }}</h3>
+                    <p>{{ category.description or 'Компьютерная техника и комплектующие' }}</p>
+                    <span class="product-count">{{ category.product_count or 0 }} товаров</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="loading">
+            <p>Категории временно недоступны</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
