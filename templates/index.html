@@ -1,1 +1,100 @@
 ﻿
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Главная - TopStore{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Баннер -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="p-5 text-white rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h1 class="display-4">Добро пожаловать в TopStore!</h1>
+                <p class="lead">Лучшие электронные товары по доступным ценам</p>
+                <a href="{% url 'catalog:product_list' %}" class="btn btn-light btn-lg">Перейти в каталог</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Новинки -->
+    <h2 class="mb-4">Новинки</h2>
+    <div class="row mb-5">
+        {% for product in new_products %}
+            <div class="col-md-3 mb-4">
+                <div class="card product-card h-100">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="No image">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.category.name }}</p>
+                        <div class="price">{{ product.price }} ₽</div>
+                        {% if product.old_price %}
+                            <div class="old-price">{{ product.old_price }} ₽</div>
+                        {% endif %}
+                        <button class="btn btn-primary mt-2 w-100 add-to-cart" data-product-id="{{ product.id }}">
+                            <i class="fas fa-shopping-cart"></i> В корзину
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Нет товаров</p>
+        {% endfor %}
+    </div>
+
+    <!-- Популярные товары -->
+    <h2 class="mb-4">Популярные товары</h2>
+    <div class="row">
+        {% for product in popular_products %}
+            <div class="col-md-3 mb-4">
+                <div class="card product-card h-100">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="No image">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.category.name }}</p>
+                        <div class="price">{{ product.price }} ₽</div>
+                        <button class="btn btn-primary mt-2 w-100 add-to-cart" data-product-id="{{ product.id }}">
+                            <i class="fas fa-shopping-cart"></i> В корзину
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>Нет товаров</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('.add-to-cart').click(function() {
+        var productId = $(this).data('product-id');
+        $.ajax({
+            url: '{% url "cart:add_to_cart" %}',
+            type: 'POST',
+            data: {
+                'product_id': productId,
+                'quantity': 1,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(data) {
+                if (data.success) {
+                    $('#cart-count').text(data.cart_count);
+                    alert('Товар добавлен в корзину!');
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

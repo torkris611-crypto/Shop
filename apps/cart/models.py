@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from apps.catalog.models import Product
 
-
 class Cart(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -29,7 +28,6 @@ class Cart(models.Model):
 
     def get_total_items(self):
         return sum(item.quantity for item in self.items.all())
-
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items', verbose_name='Корзина')
