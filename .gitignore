@@ -1,5 +1,4 @@
-﻿
-# ============================================
+﻿# ============================================
 # Python
 # ============================================
 __pycache__/
@@ -17,41 +16,66 @@ venv.bak/
 dist/
 build/
 *.egg
+pip-log.txt
+pip-delete-this-directory.txt
 
 # ============================================
 # Django
 # ============================================
-# Локальные настройки
+
 local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Медиа файлы (загруженные пользователями)
-/media/
-/mediafiles/
-
-# Статика (собранная)
-/staticfiles/
-/static_root/
-/static_collected/
-
-# Миграции (опционально - можно оставить, если хотите хранить их в репозитории)
-# Но лучше хранить миграции в репозитории, поэтому я закомментировал
-# */migrations/*.py
-# !*/migrations/__init__.py
-
-# ============================================
-# Secrets и конфиденциальные данные
-# ============================================
+settings_local.py
 .env
 .env.local
 .env.production
 .env.development
 *.env
+
+# База данных
+db.sqlite3
+db.sqlite3-journal
+*.db
+*.sqlite
+*.sqlite3
+
+/media/
+/mediafiles/
+/media_root/
+
+# Статика (собранная)
+/staticfiles/
+/static_root/
+/static_collected/
+/collected_static/
+
+# Логи
+*.log
+*.logs
+logs/
+log/
+
+# ============================================
+# Секреты и конфиденциальные данные (ВАЖНО!)
+# ============================================
+# Файлы с паролями и ключами
+.secret
+.secrets
 secrets.json
 config.py
 settings_secret.py
 secret_key.txt
+secret_key.py
+prod_settings.py
+prod.py
+*.pem
+*.key
+*.pub
+*.ppk
+id_rsa
+id_dsa
+*.cert
+*.crt
+*.p12
 
 # ============================================
 # IDE и редакторы
@@ -59,13 +83,13 @@ secret_key.txt
 # PyCharm
 .idea/
 *.iml
-.vscode/
-.vscode/settings.json
-.vscode/launch.json
+*.iws
+atlassian-ide-plugin.xml
 
 # VS Code
 .vscode/
 .history/
+*.code-workspace
 
 # Sublime Text
 *.sublime-project
@@ -76,6 +100,7 @@ secret_key.txt
 *.swo
 *~
 .~*
+.*.swp
 
 # Emacs
 *~
@@ -92,35 +117,21 @@ secret_key.txt
 .Trashes
 ehthumbs.db
 Thumbs.db
-*.log
-*.pid
-*.seed
-*.pid.lock
+Desktop.ini
+$RECYCLE.BIN/
 
 # ============================================
-# Базы данных
-# ============================================
-*.db
-*.sqlite
-*.sqlite3
-*.db-journal
-
 # PostgreSQL (локальные)
+# ============================================
 *.pgsql
 postgresql.conf
 pg_hba.conf
 pg_ident.conf
+postgresql.auto.conf
 
 # ============================================
-# Логи и отчеты
+# Отчеты и кэш
 # ============================================
-*.log
-*.logs
-logs/
-log/
-*.pyc
-*.pyo
-*.pyd
 .coverage
 .coverage.*
 htmlcov/
@@ -129,22 +140,20 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.python-version
 
 # ============================================
-# Докер
+# Docker
 # ============================================
 .dockerignore
 docker-compose.override.yml
 docker-compose.local.yml
-
-# ============================================
-# Зависимости (опционально)
-# ============================================
-# requirements.txt храним в репозитории
-# но не храним скачанные пакеты
-*.whl
-*.tar.gz
-!requirements.txt
+*.dockerfile
+.docker/
 
 # ============================================
 # Временные файлы
@@ -157,55 +166,54 @@ docker-compose.local.yml
 *.swp
 *.swo
 *~
+*.orig
+*.rej
 
 # ============================================
-# Кеш браузера и сессии
+# Сессии и кэш браузера
 # ============================================
 .session
 .sessions/
 .sess
+*.session
+
+# ============================================
+# Зависимости (не храним скачанные пакеты)
+# ============================================
+*.whl
+*.tar.gz
+!requirements.txt
+!Pipfile
+!Pipfile.lock
+!pyproject.toml
+!poetry.lock
+
+# ============================================
+# Node.js (если используется)
+# ============================================
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
 
 # ============================================
 # Документация (сгенерированная)
 # ============================================
 docs/_build/
 site/
+*.py.html
 
 # ============================================
-# Nginx и другие сервисы
-# ============================================
-nginx.conf
-*.pid
 
 # ============================================
-# SSH и ключи
-# ============================================
-*.pem
-*.key
-*.pub
-*.ppk
-id_rsa
-id_dsa
-*.cert
-*.crt
 
-# ============================================
-# Папки разработчика
-# ============================================
-dump.rdb
-node_modules/
-bower_components/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-
-# ============================================
-# Файлы проекта
-# ============================================
-# Оставляем миграции, но убираем временные файлы
 **/migrations/*.pyc
 **/migrations/*.pyo
 **/migrations/*.orig
+**/migrations/*.swp
+**/__pycache__/
 
 # ============================================
 # Тестовые данные
@@ -213,3 +221,51 @@ yarn-error.log
 test_*.db
 test_*.sqlite
 fixtures/test_*.json
+test_media/
+test_logs/
+
+# ============================================
+# Профили и отчеты производительности
+# ============================================
+*.prof
+*.lprof
+*.pstats
+
+# ============================================
+# Запасные копии
+# ============================================
+*.backup
+*.bak
+backup_*/
+backups/
+
+# ============================================
+# Git
+# ============================================
+*.orig
+*.rej
+*.patch
+
+# ============================================
+# Celery
+# ============================================
+celerybeat-schedule
+celerybeat.pid
+
+# ============================================
+# Redis
+# ============================================
+*.rdb
+*.aof
+dump.rdb
+
+# ============================================
+# Sentry
+# ============================================
+.sentry/
+
+# ============================================
+# Сборка фронтенда
+# ============================================
+/webpack-stats.json
+/webpack-stats-local.json

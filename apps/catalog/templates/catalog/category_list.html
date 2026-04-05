@@ -1,22 +1,41 @@
 ﻿{% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Категории - TopStore{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1>Категории товаров</h1>
+    <h1 class="mb-4">Категории товаров</h1>
+
     <div class="row">
-        {% for category in categories %}
-            <div class="col-md-3 mb-4">
+        {% for cat_group in categories_with_subs %}
+            <div class="col-md-4 mb-4">
                 <div class="card h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">{{ category.name }}</h5>
-                        <a href="{% url 'catalog:product_list_by_category' category.slug %}" class="btn btn-primary">Перейти</a>
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">{{ cat_group.category.name }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            {% for sub in cat_group.subcategories %}
+                                <li class="mb-2">
+                                    <a href="{% url 'catalog:product_list_by_category' sub.slug %}" class="text-decoration-none">
+                                        <i class="fas fa-angle-right"></i> {{ sub.name }}
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li class="text-muted">Нет подкатегорий</li>
+                            {% endfor %}
+                        </ul>
+                        <a href="{% url 'catalog:product_list_by_category' cat_group.category.slug %}" class="btn btn-outline-primary btn-sm w-100 mt-2">
+                            Все товары {{ cat_group.category.name }}
+                        </a>
                     </div>
                 </div>
             </div>
         {% empty %}
-            <p>Нет категорий</p>
+            <div class="col-12">
+                <p class="text-center">Категории не найдены</p>
+            </div>
         {% endfor %}
     </div>
 </div>

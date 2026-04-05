@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Оформление заказа - TopStore{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Оформление заказа</h1>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label>Имя</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Фамилия</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Телефон</label>
+                            <input type="tel" name="phone" class="form-control" value="{{ user.profile.phone }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Город</label>
+                            <input type="text" name="city" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Адрес</label>
+                            <textarea name="address" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label>Индекс</label>
+                            <input type="text" name="postal_code" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label>Способ доставки</label>
+                            <select name="delivery_method" class="form-control">
+                                <option value="courier">Курьер (300 ₽)</option>
+                                <option value="pickup">Самовывоз (0 ₽)</option>
+                                <option value="post">Почта (350 ₽)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Способ оплаты</label>
+                            <select name="payment_method" class="form-control">
+                                <option value="card">Карта онлайн</option>
+                                <option value="cash">Наличные при получении</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Комментарий</label>
+                            <textarea name="comment" class="form-control" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Подтвердить заказ</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Ваш заказ</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in items %}
+                        <div class="d-flex justify-content-between">
+                            <span>{{ item.product.name }} x{{ item.quantity }}</span>
+                            <span>{{ item.get_total_price }} ₽</span>
+                        </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Доставка:</strong>
+                        <span id="delivery-cost">300 ₽</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <strong>Итого:</strong>
+                        <strong id="total-cost">{{ total }} ₽</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelector('select[name="delivery_method"]').addEventListener('change', function() {
+    const deliveryCosts = {'courier': 300, 'pickup': 0, 'post': 350};
+    const cost = deliveryCosts[this.value] || 0;
+    document.getElementById('delivery-cost').textContent = cost + ' ₽';
+    const subtotal = {{ total_price }};
+    document.getElementById('total-cost').textContent = (subtotal + cost) + ' ₽';
+});
+</script>
+{% endblock %}

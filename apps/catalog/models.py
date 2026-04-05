@@ -25,6 +25,7 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('catalog:product_list_by_category', args=[self.slug])
 
+
 class Product(models.Model):
     name = models.CharField('Название', max_length=200)
     slug = models.SlugField('URL', unique=True, max_length=200)
@@ -36,6 +37,7 @@ class Product(models.Model):
     specifications = models.JSONField('Характеристики', default=dict, blank=True)
     stock = models.PositiveIntegerField('Количество на складе', default=0)
     in_stock = models.BooleanField('В наличии', default=True)
+    is_new = models.BooleanField('Новинка', default=False)  # ← НОВОЕ ПОЛЕ
     created = models.DateTimeField('Создан', auto_now_add=True)
     updated = models.DateTimeField('Обновлен', auto_now=True)
 
@@ -51,9 +53,9 @@ class Product(models.Model):
         return reverse('catalog:product_detail', args=[self.slug])
 
     def save(self, *args, **kwargs):
-        # Автоматически обновляем статус наличия
         self.in_stock = self.stock > 0
         super().save(*args, **kwargs)
+
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', verbose_name='Товар')
@@ -63,6 +65,7 @@ class ProductImage(models.Model):
     class Meta:
         verbose_name = 'Изображение товара'
         verbose_name_plural = 'Изображения товаров'
+
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews', verbose_name='Товар')
@@ -76,6 +79,7 @@ class Review(models.Model):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ['-created']
+
 
 class Favorite(models.Model):
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='favorites', verbose_name='Пользователь')

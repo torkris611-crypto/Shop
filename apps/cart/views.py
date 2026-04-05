@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+import json
 from apps.catalog.models import Product
 from .models import Cart, CartItem
 
@@ -36,9 +38,17 @@ def cart_detail(request):
 
 @require_POST
 def add_to_cart(request):
-    """Добавить товар в корзину"""
+    """Добавить товар в корзину (с проверкой авторизации)"""
     product_id = request.POST.get('product_id')
     quantity = int(request.POST.get('quantity', 1))
+
+    # ПРОВЕРКА: если пользователь не авторизован
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'need_login': True,
+            'error': 'Для добавления товара в корзину необходимо войти в аккаунт'
+        })
 
     try:
         product = get_object_or_404(Product, id=product_id, in_stock=True)
@@ -78,8 +88,9 @@ def add_to_cart(request):
 
 
 @require_POST
+@login_required
 def update_cart_item(request):
-    """Обновить количество товара"""
+    """Обновить количество товара (только для авторизованных)"""
     item_id = request.POST.get('item_id')
     quantity = int(request.POST.get('quantity', 1))
 
@@ -90,7 +101,6 @@ def update_cart_item(request):
         if quantity <= 0:
             cart_item.delete()
         else:
-            # Проверяем наличие
             if quantity > cart_item.product.stock:
                 return JsonResponse({
                     'success': False,
@@ -110,8 +120,9 @@ def update_cart_item(request):
 
 
 @require_POST
+@login_required
 def remove_from_cart(request):
-    """Удалить товар из корзины"""
+    """Удалить товар из корзины (только для авторизованных)"""
     item_id = request.POST.get('item_id')
 
     try:
@@ -130,8 +141,9 @@ def remove_from_cart(request):
 
 
 @require_POST
+@login_required
 def clear_cart(request):
-    """Очистить корзину"""
+    """Очистить корзину (только для авторизованных)"""
     cart = get_cart(request)
     cart.items.all().delete()
 

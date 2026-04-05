@@ -1,4 +1,4 @@
-﻿from django.shortcuts import render, get_object_or_404
+﻿from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.contrib.auth.decorators import login_required
@@ -8,30 +8,28 @@ from .models import Category, Product, Review, Favorite
 
 
 def home(request):
-    """Главная страница"""
-    # Получаем новинки (последние 8 товаров)
-    new_products = Product.objects.filter(in_stock=True).order_by('-created')[:8]
+    """Главная страница - показывает только новинки"""
+    # Только новинки (отмеченные флажком is_new)
+    new_products = Product.objects.filter(in_stock=True, is_new=True).order_by('-created')[:8]
 
-    # Получаем популярные товары (по количеству отзывов)
-    popular_products = Product.objects.filter(in_stock=True).annotate(
-        review_count=Count('reviews')
-    ).order_by('-review_count')[:8]
+    # Если новинок нет, показываем последние 8 товаров
+    if not new_products:
+        new_products = Product.objects.filter(in_stock=True).order_by('-created')[:8]
 
     context = {
         'new_products': new_products,
-        'popular_products': popular_products,
     }
     return render(request, 'index.html', context)
 
 
-def product_list(request):
-    """Список товаров"""
+def product_list(request, slug=None):
+    """Список товаров с фильтрацией"""
     products = Product.objects.filter(in_stock=True)
     category = None
-    category_slug = request.GET.get('category')
 
-    if category_slug:
-        category = get_object_or_404(Category, slug=category_slug)
+    # Получаем slug категории из параметра URL
+    if slug:
+        category = get_object_or_404(Category, slug=slug)
         products = products.filter(category=category)
 
     # Фильтрация по цене
@@ -59,14 +57,27 @@ def product_list(request):
     page = request.GET.get('page')
     products = paginator.get_page(page)
 
-    # Категории для фильтра
-    categories = Category.objects.all()
+    # Все категории для фильтра (только верхний уровень)
+    categories = Category.objects.filter(parent__isnull=True)
+
+    # Словарь для отображения названий сортировки
+    sort_choices = {
+        '-created': 'Новинки',
+        'price': 'Цена по возрастанию',
+        '-price': 'Цена по убыванию',
+        'name': 'По названию (А-Я)',
+        '-name': 'По названию (Я-А)',
+    }
 
     context = {
         'products': products,
         'category': category,
         'categories': categories,
         'search_query': search_query,
+        'current_sort': sort,
+        'sort_choices': sort_choices,
+        'min_price': min_price,
+        'max_price': max_price,
     }
     return render(request, 'catalog/product_list.html', context)
 
@@ -81,7 +92,7 @@ def product_detail(request, slug):
     if request.user.is_authenticated:
         is_favorite = Favorite.objects.filter(user=request.user, product=product).exists()
 
-    # Похожие товары
+    # Похожие товары (из той же категории)
     related_products = Product.objects.filter(
         category=product.category,
         in_stock=True
@@ -97,9 +108,22 @@ def product_detail(request, slug):
 
 
 def category_list(request):
-    """Список категорий"""
-    categories = Category.objects.all()
-    return render(request, 'catalog/category_list.html', {'categories': categories})
+    """Список всех категорий"""
+    # Получаем только родительские категории
+    main_categories = Category.objects.filter(parent__isnull=True)
+
+    # Для каждой категории получаем подкатегории
+    categories_with_subs = []
+    for cat in main_categories:
+        categories_with_subs.append({
+            'category': cat,
+            'subcategories': Category.objects.filter(parent=cat)
+        })
+
+    context = {
+        'categories_with_subs': categories_with_subs,
+    }
+    return render(request, 'catalog/category_list.html', context)
 
 
 def add_review(request, product_id):
@@ -117,12 +141,16 @@ def add_review(request, product_id):
                 text=text
             )
             messages.success(request, 'Спасибо за отзыв!')
+        else:
+            messages.error(request, 'Пожалуйста, заполните все поля')
 
-    return product_detail(request, product.slug)
+        return redirect('catalog:product_detail', slug=product.slug)
+
+    return redirect('catalog:product_list')
 
 
 def toggle_favorite(request):
-    """Добавить/удалить из избранного"""
+    """Добавить/удалить из избранного (AJAX)"""
     if request.method == 'POST' and request.user.is_authenticated:
         product_id = request.POST.get('product_id')
         product = get_object_or_404(Product, id=product_id)
@@ -139,4 +167,4 @@ def toggle_favorite(request):
             is_favorite = True
 
         return JsonResponse({'success': True, 'is_favorite': is_favorite})
-    return JsonResponse({'success': False})
+    return JsonResponse({'success': False, 'error': 'Требуется авторизация'})
