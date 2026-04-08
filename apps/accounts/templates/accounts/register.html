@@ -1,4 +1,5 @@
 ﻿{% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Регистрация - TopStore{% endblock %}
 
@@ -6,38 +7,56 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Регистрация</h3>
+            <div class="card" style="background: rgba(20,20,40,0.8); border: 1px solid rgba(156,39,176,0.3);">
+                <div class="card-header bg-transparent border-primary text-center">
+                    <h3 class="mb-0" style="color: #9c27b0;">
+                        <i class="fas fa-user-plus"></i> Регистрация
+                    </h3>
                 </div>
                 <div class="card-body">
                     <form method="post">
                         {% csrf_token %}
+
                         <div class="mb-3">
-                            <label for="username" class="form-label">Имя пользователя</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <label for="id_username" class="form-label" style="color: #ffffff;">Имя пользователя *</label>
+                            <input type="text" name="username" id="id_username" class="form-control" style="background: rgba(255,255,255,0.1); border-color: rgba(156,39,176,0.3); color: #ffffff;" required>
+                            <small class="text-muted" style="color: #aaaaaa !important;">Обязательное поле. Только буквы, цифры и @/./+/-/_.</small>
                         </div>
+
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="id_email" class="form-label" style="color: #ffffff;">Email *</label>
+                            <input type="email" name="email" id="id_email" class="form-control" style="background: rgba(255,255,255,0.1); border-color: rgba(156,39,176,0.3); color: #ffffff;" required>
                         </div>
+
                         <div class="mb-3">
-                            <label for="password1" class="form-label">Пароль</label>
-                            <input type="password" class="form-control" id="password1" name="password1" required>
+                            <label for="id_password1" class="form-label" style="color: #ffffff;">Пароль *</label>
+                            <input type="password" name="password1" id="id_password1" class="form-control" style="background: rgba(255,255,255,0.1); border-color: rgba(156,39,176,0.3); color: #ffffff;" required>
+                            <small class="text-muted" style="color: #aaaaaa !important;">Пароль должен содержать не менее 8 символов</small>
                         </div>
+
                         <div class="mb-3">
-                            <label for="password2" class="form-label">Подтверждение пароля</label>
-                            <input type="password" class="form-control" id="password2" name="password2" required>
+                            <label for="id_password2" class="form-label" style="color: #ffffff;">Подтверждение пароля *</label>
+                            <input type="password" name="password2" id="id_password2" class="form-control" style="background: rgba(255,255,255,0.1); border-color: rgba(156,39,176,0.3); color: #ffffff;" required>
                         </div>
+
                         <div class="mb-3">
-                            <label for="phone" class="form-label">Телефон</label>
-                            <input type="tel" class="form-control" id="phone" name="phone">
+                            <label for="id_phone" class="form-label" style="color: #ffffff;">Телефон</label>
+                            <input type="tel" name="phone" id="id_phone" class="form-control" style="background: rgba(255,255,255,0.1); border-color: rgba(156,39,176,0.3); color: #ffffff;" placeholder="+7 (999) 123-45-67">
+                            <small class="text-muted" style="color: #aaaaaa !important;">Необязательное поле</small>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-user-plus"></i> Зарегистрироваться
+                        </button>
                     </form>
-                    <hr>
-                    <p class="text-center mb-0">
-                        Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a>
+
+                    <hr class="my-4" style="border-color: rgba(156,39,176,0.3);">
+
+                    <p class="text-center mb-0" style="color: #ffffff;">
+                        Уже есть аккаунт?
+                        <a href="{% url 'accounts:login' %}" class="text-decoration-none" style="color: #9c27b0;">
+                            Войти
+                        </a>
                     </p>
                 </div>
             </div>

@@ -1,9 +1,8 @@
-﻿
-from .views import get_cart
+﻿from .views import get_cart
 
 def cart(request):
     """Контекстный процессор для корзины"""
-    if request.user.is_authenticated or request.session.session_key:
+    if request.user.is_authenticated:
         cart = get_cart(request)
         return {
             'cart_total_items': cart.get_total_items(),

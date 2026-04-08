@@ -47,15 +47,14 @@ def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-
-            # Создаем профиль
-            Profile.objects.create(user=user)
-
+            user = form.save()
             messages.success(request, 'Регистрация успешна! Теперь вы можете войти.')
             return redirect('accounts:login')
+        else:
+            # Выводим ошибки формы
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = UserRegistrationForm()
 
@@ -65,16 +64,7 @@ def register(request):
 @login_required
 def profile(request):
     """Личный кабинет"""
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user.profile)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Профиль обновлен!')
-            return redirect('accounts:profile')
-    else:
-        form = UserProfileForm(instance=request.user.profile)
-
-    return render(request, 'accounts/profile.html', {'form': form})
+    return render(request, 'accounts/profile.html')
 
 
 @login_required

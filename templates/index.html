@@ -5,88 +5,65 @@
 
 {% block content %}
 <div class="container mt-4">
-    <!-- Баннер -->
-    <div class="row mb-4">
+    <!-- Герой секция -->
+    <div class="row mb-5">
         <div class="col-12">
-            <div class="p-5 text-white rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <h1 class="display-4">Добро пожаловать в TopStore!</h1>
+            <div class="p-5 text-center rounded-4" style="background: linear-gradient(135deg, rgba(156,39,176,0.2) 0%, rgba(123,31,162,0.3) 100%); border: 1px solid rgba(156,39,176,0.3);">
+                <h1 class="display-4 fw-bold">Добро пожаловать в <span style="background: linear-gradient(135deg, #9c27b0, #e040fb); -webkit-background-clip: text; background-clip: text; color: transparent;">TopStore</span>!</h1>
                 <p class="lead">Лучшие электронные товары по доступным ценам</p>
-                <a href="{% url 'catalog:product_list' %}" class="btn btn-light btn-lg">Перейти в каталог</a>
+                <a href="{% url 'catalog:product_list' %}" class="btn btn-primary btn-lg mt-3">
+                    <i class="fas fa-shopping-cart"></i> Перейти в каталог
+                </a>
             </div>
         </div>
     </div>
 
     <!-- Новинки -->
-    <h2 class="mb-4">
-        <i class="fas fa-star text-warning"></i> Новинки
-    </h2>
-    <div class="row">
-        {% for product in new_products %}
-            <div class="col-md-3 mb-4">
-                <div class="card product-card h-100">
-                    {% if product.is_new %}
-                        <div class="position-absolute top-0 start-0 m-2">
-                            <span class="badge bg-warning text-dark">🔥 НОВИНКА</span>
-                        </div>
-                    {% endif %}
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                    {% else %}
-                        <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="No image">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text text-muted">{{ product.category.name }}</p>
-                        <div class="price">{{ product.price }} ₽</div>
-                        {% if product.old_price %}
-                            <div class="old-price">{{ product.old_price }} ₽</div>
+    <h2 class="mb-4"><i class="fas fa-star text-warning"></i> Новинки</h2>
+
+    {% if new_products %}
+        <div class="row">
+            {% for product in new_products %}
+                <div class="col-md-3 mb-4">
+                    <div class="product-card">
+                        {% if product.is_new %}
+                            <div class="position-absolute top-0 start-0 m-2">
+                                <span class="badge-new">🔥 НОВИНКА</span>
+                            </div>
                         {% endif %}
-                        <button class="btn btn-primary mt-2 w-100 add-to-cart" data-product-id="{{ product.id }}">
-                            <i class="fas fa-shopping-cart"></i> В корзину
-                        </button>
+                        <div style="height: 200px; overflow: hidden;">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 100%; width: 100%; object-fit: cover;">
+                            {% else %}
+                                <img src="https://via.placeholder.com/300x200?text=No+Image" class="card-img-top" alt="No image" style="height: 100%; width: 100%; object-fit: cover;">
+                            {% endif %}
+                        </div>
+                        <div class="card-body p-3">
+                            <h5 class="card-title fs-6">{{ product.name|truncatechars:35 }}</h5>
+                            <p class="card-text text-white-50 small">{{ product.category.name }}</p>
+                            <div class="price fs-4 fw-bold">{{ product.price }} ₽</div>
+                            {% if product.old_price %}
+                                <div class="old-price">{{ product.old_price }} ₽</div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-top-0 p-3 pt-0">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'catalog:product_detail' product.slug %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> Подробнее
+                                </a>
+                                <button class="btn btn-primary btn-sm add-to-cart" data-product-id="{{ product.id }}">
+                                    <i class="fas fa-shopping-cart"></i> В корзину
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% empty %}
-            <div class="col-12">
-                <p class="text-center">Нет товаров</p>
-            </div>
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <p>Новинок пока нет</p>
+        </div>
+    {% endif %}
 </div>
-
-{% block extra_js %}
-<script>
-$(document).ready(function() {
-    $('.add-to-cart').click(function() {
-        var productId = $(this).data('product-id');
-
-        $.ajax({
-            url: '{% url "cart:add_to_cart" %}',
-            type: 'POST',
-            data: {
-                'product_id': productId,
-                'quantity': 1,
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
-            },
-            success: function(data) {
-                if (data.success) {
-                    $('#cart-count').text(data.cart_count);
-                    alert('Товар добавлен в корзину!');
-                } else if (data.need_login) {
-                    if (confirm('Для добавления товара в корзину необходимо войти в аккаунт. Перейти на страницу входа?')) {
-                        window.location.href = '{% url "accounts:login" %}';
-                    }
-                } else {
-                    alert(data.error || 'Ошибка при добавлении в корзину');
-                }
-            },
-            error: function() {
-                alert('Произошла ошибка');
-            }
-        });
-    });
-});
-</script>
-{% endblock %}
 {% endblock %}

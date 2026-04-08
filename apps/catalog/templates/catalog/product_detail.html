@@ -1,32 +1,184 @@
 ﻿{% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{{ product.name }} - TopStore{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}" style="color: #9c27b0;">Главная</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'catalog:product_list' %}" style="color: #9c27b0;">Каталог</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'catalog:product_list_by_category' product.category.slug %}" style="color: #9c27b0;">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active" style="color: #ffffff;">{{ product.name|truncatechars:50 }}</li>
+        </ol>
+    </nav>
+
     <div class="row">
-        <div class="col-md-6">
-            {% if product.image %}
-                <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
-            {% else %}
-                <div class="bg-light text-center p-5 rounded">
-                    <i class="fas fa-image fa-5x text-muted"></i>
+        <div class="col-md-5 mb-4">
+            <div class="card" style="background: rgba(20,20,40,0.6); border: 1px solid rgba(156,39,176,0.3);">
+                <div class="card-body text-center">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 400px; object-fit: contain;">
+                    {% else %}
+                        <i class="fas fa-image fa-5x" style="color: #ffffff;"></i>
+                    {% endif %}
                 </div>
-            {% endif %}
+            </div>
         </div>
-        <div class="col-md-6">
-            <h1>{{ product.name }}</h1>
-            <p class="text-muted">
-                <a href="{% url 'catalog:product_list_by_category' product.category.slug %}">
-                    {{ product.category.name }}
-                </a>
-            </p>
-            <h2 class="price">{{ product.price }} ₽</h2>
-            <p><strong>Наличие:</strong> {% if product.in_stock %}В наличии ({{ product.stock }} шт.){% else %}Нет в наличии{% endif %}</p>
-            <p>{{ product.description }}</p>
-            <button class="btn btn-primary btn-lg w-100 add-to-cart" data-product-id="{{ product.id }}">
-                <i class="fas fa-shopping-cart"></i> Добавить в корзину
-            </button>
+
+        <div class="col-md-7 mb-4">
+            <div class="card" style="background: rgba(20,20,40,0.6); border: 1px solid rgba(156,39,176,0.3);">
+                <div class="card-body">
+                    {% if product.is_new %}
+                        <span class="badge bg-warning text-dark mb-2">🔥 НОВИНКА</span>
+                    {% endif %}
+
+                    <h1 class="mb-3" style="color: #ffffff;">{{ product.name }}</h1>
+
+                    <p class="mb-3" style="color: #ffffff;">
+                        <i class="fas fa-folder" style="color: #9c27b0;"></i>
+                        <a href="{% url 'catalog:product_list_by_category' product.category.slug %}" class="text-decoration-none" style="color: #9c27b0;">
+                            {{ product.category.name }}
+                        </a>
+                    </p>
+
+                    <div class="mb-3">
+                        <span class="display-5 fw-bold" style="color: #9c27b0;">{{ product.price }} ₽</span>
+                        {% if product.old_price %}
+                            <span style="color: #ffffff; text-decoration: line-through;">{{ product.old_price }} ₽</span>
+                            <span class="badge bg-danger ms-2">Скидка</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {% if product.stock > 0 %}
+                            <span class="badge bg-success" style="color: #ffffff;"><i class="fas fa-check-circle"></i> В наличии ({{ product.stock }} шт.)</span>
+                        {% else %}
+                            <span class="badge bg-danger" style="color: #ffffff;"><i class="fas fa-times-circle"></i> Нет в наличии</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button class="btn btn-primary btn-lg flex-grow-1 add-to-cart" data-product-id="{{ product.id }}" {% if product.stock == 0 %}disabled{% endif %}>
+                            <i class="fas fa-shopping-cart"></i> Добавить в корзину
+                        </button>
+                        <button class="btn btn-outline-danger btn-lg favorite-btn" data-product-id="{{ product.id }}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4" style="background: rgba(20,20,40,0.6); border: 1px solid rgba(156,39,176,0.3);">
+        <div class="card-header" style="background: rgba(156,39,176,0.2); border-bottom: none;">
+            <ul class="nav nav-tabs card-header-tabs" id="productTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#description" type="button" role="tab" style="color: #ffffff;">
+                        <i class="fas fa-align-left"></i> Описание
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#specifications" type="button" role="tab" style="color: #ffffff;">
+                        <i class="fas fa-microchip"></i> Характеристики
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#reviews" type="button" role="tab" style="color: #ffffff;">
+                        <i class="fas fa-star"></i> Отзывы ({{ reviews.count }})
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+
+                <!-- ОПИСАНИЕ - СВЕТЛО-ГОЛУБОЙ ФОН -->
+                <div class="tab-pane fade show active" id="description">
+                    <div style="background: #4a90d9; padding: 20px; border-radius: 10px; border-left: 4px solid #9c27b0;">
+                        <p style="line-height: 1.6; color: #ffffff; margin: 0; font-size: 16px;">
+                            {{ product.description|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Характеристики (JSON) -->
+                <div class="tab-pane fade" id="specifications">
+                    {% if product.specifications %}
+                        <div class="table-responsive">
+                            <table class="table" style="color: #ffffff; width: 100%; border-collapse: collapse;">
+                                <tbody>
+                                    {% for key, value in product.specifications.items %}
+                                        <tr style="border-bottom: 1px solid rgba(156,39,176,0.3);">
+                                            <td style="width: 35%; padding: 12px 15px; background: rgba(156,39,176,0.15); color: #e040fb; font-weight: 600; border-radius: 10px 0 0 10px;">
+                                                <i class="fas fa-cog"></i> {{ key }}
+                                            </td>
+                                            <td style="width: 65%; padding: 12px 15px; background: rgba(255,255,255,0.08); color: #ffffff; font-weight: 500; border-radius: 0 10px 10px 0;">
+                                                {{ value }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info" style="color: #ffffff; background: rgba(156,39,176,0.2);">
+                            <i class="fas fa-info-circle"></i> Характеристики товара временно недоступны.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Отзывы -->
+                <div class="tab-pane fade" id="reviews">
+                    {% if reviews %}
+                        {% for review in reviews %}
+                            <div class="mb-3 p-3" style="background: rgba(156,39,176,0.15); border-radius: 10px;">
+                                <div class="d-flex justify-content-between">
+                                    <strong style="color: #ffffff;"><i class="fas fa-user-circle"></i> {{ review.user.username }}</strong>
+                                    <div class="text-warning">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="mt-2 mb-1" style="color: #ffffff;">{{ review.text }}</p>
+                                <small style="color: #cccccc;">{{ review.created|date:"d.m.Y" }}</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center" style="color: #ffffff;">Пока нет отзывов. Будьте первым!</p>
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                        <hr style="border-color: rgba(156,39,176,0.3);">
+                        <h5 style="color: #ffffff;">Оставить отзыв</h5>
+                        <form method="post" action="{% url 'catalog:add_review' product.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label" style="color: #ffffff;">Оценка</label>
+                                <select name="rating" class="form-select" style="background: rgba(255,255,255,0.1); border-color: rgba(156,39,176,0.3); color: #ffffff;">
+                                    <option value="5">5 - Отлично</option>
+                                    <option value="4">4 - Хорошо</option>
+                                    <option value="3">3 - Средне</option>
+                                    <option value="2">2 - Плохо</option>
+                                    <option value="1">1 - Ужасно</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <textarea name="review_text" class="form-control" rows="3" placeholder="Ваш отзыв..." style="background: rgba(255,255,255,0.1); border-color: rgba(156,39,176,0.3); color: #ffffff;"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+                        </form>
+                    {% else %}
+                        <div class="alert alert-warning" style="color: #ffffff; background: rgba(255,193,7,0.2);">
+                            <a href="{% url 'accounts:login' %}" class="alert-link" style="color: #ffffff;">Войдите</a>, чтобы оставить отзыв
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -35,6 +187,8 @@
 $(document).ready(function() {
     $('.add-to-cart').click(function() {
         var productId = $(this).data('product-id');
+        var $btn = $(this);
+
         $.ajax({
             url: '{% url "cart:add_to_cart" %}',
             type: 'POST',
@@ -46,7 +200,39 @@ $(document).ready(function() {
             success: function(data) {
                 if (data.success) {
                     $('#cart-count').text(data.cart_count);
-                    alert('Товар добавлен в корзину!');
+                    alert('✅ Товар добавлен в корзину!');
+                } else if (data.need_login) {
+                    if (confirm('🔐 Для добавления товара в корзину необходимо войти в аккаунт. Перейти на страницу входа?')) {
+                        window.location.href = '{% url "accounts:login" %}';
+                    }
+                } else {
+                    alert('❌ ' + (data.error || 'Ошибка при добавлении в корзину'));
+                }
+            },
+            error: function() {
+                alert('❌ Произошла ошибка');
+            }
+        });
+    });
+
+    $('.favorite-btn').click(function() {
+        var productId = $(this).data('product-id');
+        var $btn = $(this);
+
+        $.ajax({
+            url: '{% url "catalog:toggle_favorite" %}',
+            type: 'POST',
+            data: {
+                'product_id': productId,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(data) {
+                if (data.success) {
+                    if (data.is_favorite) {
+                        $btn.addClass('active').html('<i class="fas fa-heart"></i>');
+                    } else {
+                        $btn.removeClass('active').html('<i class="fas fa-heart"></i>');
+                    }
                 }
             }
         });

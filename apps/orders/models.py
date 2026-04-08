@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from apps.catalog.models import Product
 
 
@@ -33,7 +35,7 @@ class Order(models.Model):
     last_name = models.CharField('Фамилия', max_length=50)
     email = models.EmailField('Email')
     phone = models.CharField('Телефон', max_length=20)
-    city = models.CharField('Город', max_length=100, default='')  # Добавили default
+    city = models.CharField('Город', max_length=100, blank=True, default='')
     address = models.TextField('Адрес доставки')
     postal_code = models.CharField('Индекс', max_length=20, blank=True, default='')
     comment = models.TextField('Комментарий', blank=True, default='')

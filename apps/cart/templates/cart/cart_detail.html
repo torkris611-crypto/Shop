@@ -5,169 +5,245 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1>Корзина</h1>
-    
+    <h1 class="mb-4"><i class="fas fa-shopping-cart"></i> Корзина</h1>
+
     {% if items %}
         <div class="row">
             <div class="col-md-8">
-                <div class="card">
+                <div class="card" style="background: rgba(20,20,40,0.6); border: 1px solid rgba(156,39,176,0.3);">
                     <div class="card-body">
                         {% for item in items %}
-                            <div class="row mb-3 cart-item" data-item-id="{{ item.id }}">
+                            <div class="row mb-3 cart-item align-items-center" id="cart-item-{{ item.id }}">
                                 <div class="col-md-2">
                                     {% if item.product.image %}
-                                        <img src="{{ item.product.image.url }}" class="img-fluid" alt="{{ item.product.name }}" style="height: 80px; object-fit: cover;">
+                                        <img src="{{ item.product.image.url }}" class="img-fluid rounded" alt="{{ item.product.name }}" style="height: 80px; object-fit: cover; width: 80px;">
                                     {% else %}
                                         <i class="fas fa-box fa-3x text-muted"></i>
                                     {% endif %}
                                 </div>
                                 <div class="col-md-4">
-                                    <h5>{{ item.product.name }}</h5>
-                                    <p class="text-muted">{{ item.product.price }} ₽</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="input-group">
-                                        <button class="btn btn-outline-secondary btn-sm update-quantity" data-change="-1">-</button>
-                                        <input type="number" class="form-control text-center quantity-input" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" style="width: 60px;">
-                                        <button class="btn btn-outline-secondary btn-sm update-quantity" data-change="1">+</button>
-                                    </div>
+                                    <h5 class="mb-1" style="color: #ffffff;">{{ item.product.name }}</h5>
+                                    <p class="text-muted mb-0" style="color: #aaaaaa !important;">{{ item.product.category.name }}</p>
                                 </div>
                                 <div class="col-md-2">
-                                    <p class="fw-bold item-total">{{ item.get_total_price }} ₽</p>
+                                    <p class="fw-bold mb-0" style="color: #9c27b0;">{{ item.product.price }} ₽</p>
                                 </div>
-                                <div class="col-md-1">
-                                    <button class="btn btn-danger btn-sm remove-item">✕</button>
+                                <div class="col-md-3">
+                                    <div class="input-group" style="width: 120px;">
+                                        <button class="btn btn-outline-secondary btn-sm dec-quantity" data-id="{{ item.id }}" type="button" style="background: rgba(255,255,255,0.1); color: #ffffff;">−</button>
+                                        <input type="text" class="form-control text-center quantity-input" value="{{ item.quantity }}" data-id="{{ item.id }}" style="background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(156,39,176,0.3); width: 50px;">
+                                        <button class="btn btn-outline-secondary btn-sm inc-quantity" data-id="{{ item.id }}" type="button" style="background: rgba(255,255,255,0.1); color: #ffffff;">+</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-1 text-end">
+                                    <button class="btn btn-danger btn-sm remove-item" data-id="{{ item.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </div>
                             </div>
+                            {% if not forloop.last %}<hr style="border-color: rgba(156,39,176,0.3);">{% endif %}
                         {% endfor %}
                     </div>
                 </div>
             </div>
+
             <div class="col-md-4">
-                <div class="card">
+                <div class="card" style="background: rgba(20,20,40,0.6); border: 1px solid rgba(156,39,176,0.3);">
                     <div class="card-body">
-                        <h5>Итого</h5>
-                        <p class="fs-3 fw-bold text-primary">₽ <span id="cart-total">{{ total_price }}</span></p>
-                        <a href="{% url 'orders:order_create' %}" class="btn btn-success w-100">Оформить заказ</a>
-                        <button class="btn btn-outline-danger w-100 mt-2" id="clear-cart">Очистить корзину</button>
+                        <h4 class="mb-3" style="color: #ffffff;">Итого</h4>
+                        <hr style="border-color: rgba(156,39,176,0.3);">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span style="color: #ffffff;">Товаров:</span>
+                            <span id="total-items" style="color: #ffffff;">{{ total_items }} шт.</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span style="color: #ffffff;">Сумма:</span>
+                            <span id="total-price" style="color: #9c27b0; font-size: 24px; font-weight: bold;">{{ total_price }} ₽</span>
+                        </div>
+                        <hr style="border-color: rgba(156,39,176,0.3);">
+                        <a href="{% url 'orders:order_create' %}" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-check"></i> Оформить заказ
+                        </a>
+                        <button class="btn btn-outline-danger w-100" id="clear-cart">
+                            <i class="fas fa-trash"></i> Очистить корзину
+                        </button>
+                        <a href="{% url 'catalog:product_list' %}" class="btn btn-outline-secondary w-100 mt-2">
+                            <i class="fas fa-arrow-left"></i> Продолжить покупки
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     {% else %}
         <div class="text-center py-5">
-            <i class="fas fa-shopping-cart fa-5x text-muted mb-3"></i>
-            <h3>Корзина пуста</h3>
-            <a href="{% url 'catalog:product_list' %}" class="btn btn-primary mt-3">Перейти в каталог</a>
+            <i class="fas fa-shopping-cart fa-5x text-white-50 mb-3"></i>
+            <h3 style="color: #ffffff;">Корзина пуста</h3>
+            <p style="color: #aaaaaa;">Добавьте товары в корзину, чтобы продолжить</p>
+            <a href="{% url 'catalog:product_list' %}" class="btn btn-primary mt-3">
+                <i class="fas fa-shopping-cart"></i> Перейти в каталог
+            </a>
         </div>
     {% endif %}
 </div>
 
-{% block extra_js %}
 <script>
-$(document).ready(function() {
-    // Обновление количества
-    $('.update-quantity').click(function() {
-        var $row = $(this).closest('.cart-item');
-        var itemId = $row.data('item-id');
-        var $input = $row.find('.quantity-input');
-        var change = parseInt($(this).data('change'));
-        var newQuantity = parseInt($input.val()) + change;
-        
-        if (newQuantity < 1) newQuantity = 1;
-        $input.val(newQuantity);
-        
-        updateCartItem(itemId, newQuantity);
-    });
-    
-    $('.quantity-input').change(function() {
-        var $row = $(this).closest('.cart-item');
-        var itemId = $row.data('item-id');
-        var quantity = parseInt($(this).val());
-        if (quantity < 1) quantity = 1;
-        $(this).val(quantity);
-        updateCartItem(itemId, quantity);
-    });
-    
-    // Удаление товара
-    $('.remove-item').click(function() {
-        var $row = $(this).closest('.cart-item');
-        var itemId = $row.data('item-id');
-        if (confirm('Удалить товар из корзины?')) {
-            removeCartItem(itemId);
+// Функция обновления корзины
+function updateCart() {
+    fetch('/cart/api/update/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         }
-    });
-    
-    // Очистка корзины
-    $('#clear-cart').click(function() {
-        if (confirm('Очистить корзину?')) {
-            $.ajax({
-                url: '{% url "cart:clear_cart" %}',
-                type: 'POST',
-                data: {
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
-                success: function(data) {
-                    if (data.success) {
-                        location.reload();
-                    }
-                },
-                error: function() {
-                    alert('Ошибка при очистке корзины');
-                }
-            });
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('total-items').innerText = data.total_items + ' шт.';
+            document.getElementById('total-price').innerText = data.total_price + ' ₽';
+            document.getElementById('cart-count').innerText = data.total_items;
         }
-    });
-    
-    function updateCartItem(itemId, quantity) {
-        $.ajax({
-            url: '{% url "cart:update_cart_item" %}',
-            type: 'POST',
-            data: {
-                'item_id': itemId,
-                'quantity': quantity,
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
+    })
+    .catch(error => console.error('Ошибка:', error));
+}
+
+// Функция удаления товара
+function removeItem(itemId) {
+    if (confirm('Удалить товар из корзины?')) {
+        fetch('/cart/api/remove/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
             },
-            success: function(data) {
-                if (data.success) {
-                    $('#cart-count').text(data.cart_count);
-                    $('#cart-total').text(data.cart_total);
-                    // Обновляем общую сумму для этого товара
-                    var $row = $('.cart-item[data-item-id="' + itemId + '"]');
-                    var price = parseFloat($row.find('.item-total').text());
-                    // Можно обновить сумму, если нужно
-                } else {
-                    alert(data.error || 'Ошибка при обновлении');
+            body: JSON.stringify({ item_id: itemId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Удаляем строку товара
+                const row = document.getElementById('cart-item-' + itemId);
+                if (row) row.remove();
+
+                // Обновляем итоги
+                updateCart();
+
+                // Если корзина пуста, перезагружаем страницу
+                if (data.cart_empty) {
                     location.reload();
                 }
-            },
-            error: function() {
-                alert('Ошибка при обновлении количества');
+            } else {
+                alert('Ошибка: ' + (data.error || 'Не удалось удалить товар'));
+            }
+        })
+        .catch(error => console.error('Ошибка:', error));
+    }
+}
+
+// Функция изменения количества
+function updateQuantity(itemId, newQuantity) {
+    if (newQuantity < 1) newQuantity = 1;
+
+    fetch('/cart/api/update-item/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            item_id: itemId,
+            quantity: newQuantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Обновляем отображение
+            const row = document.getElementById('cart-item-' + itemId);
+            if (row) {
+                const priceElement = row.querySelector('.fw-bold');
+                if (priceElement && data.item_price) {
+                    // Можно обновить цену товара, если нужно
+                }
+            }
+            updateCart();
+        } else {
+            alert('Ошибка: ' + (data.error || 'Не удалось обновить количество'));
+            // Перезагружаем страницу, чтобы показать актуальные данные
+            location.reload();
+        }
+    })
+    .catch(error => console.error('Ошибка:', error));
+}
+
+// Обработчики событий
+document.addEventListener('DOMContentLoaded', function() {
+    // Увеличение количества
+    document.querySelectorAll('.inc-quantity').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const input = document.querySelector(`.quantity-input[data-id="${id}"]`);
+            const currentVal = parseInt(input.value);
+            updateQuantity(id, currentVal + 1);
+        });
+    });
+
+    // Уменьшение количества
+    document.querySelectorAll('.dec-quantity').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const input = document.querySelector(`.quantity-input[data-id="${id}"]`);
+            const currentVal = parseInt(input.value);
+            updateQuantity(id, currentVal - 1);
+        });
+    });
+
+    // Ручной ввод количества
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const id = this.dataset.id;
+            const newVal = parseInt(this.value);
+            if (!isNaN(newVal)) {
+                updateQuantity(id, newVal);
             }
         });
-    }
-    
-    function removeCartItem(itemId) {
-        $.ajax({
-            url: '{% url "cart:remove_from_cart" %}',
-            type: 'POST',
-            data: {
-                'item_id': itemId,
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
-            },
-            success: function(data) {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert(data.error || 'Ошибка при удалении');
-                }
-            },
-            error: function() {
-                alert('Ошибка при удалении товара');
+    });
+
+    // Удаление товара
+    document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            removeItem(id);
+        });
+    });
+
+    // Очистка корзины
+    const clearBtn = document.getElementById('clear-cart');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+            if (confirm('Очистить всю корзину?')) {
+                fetch('/cart/api/clear/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Ошибка при очистке корзины');
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
             }
         });
     }
 });
 </script>
-{% endblock %}
 {% endblock %}

@@ -1,68 +1,189 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TopStore - Интернет-магазин электроники{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
+        /* Ваши стили (оставляем как есть) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2a 50%, #0d0d1a 100%);
             min-height: 100vh;
+            color: #ffffff;
         }
+
         .navbar {
-            background: rgba(255,255,255,0.95);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: rgba(10, 10, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(156, 39, 176, 0.3);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2, #e040fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent !important;
+        }
+
+        .nav-link {
+            color: #e0e0e0 !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #9c27b0 !important;
+        }
+
+        .cart-icon {
+            position: relative;
+        }
+
         .cart-badge {
             position: absolute;
             top: -8px;
-            right: -8px;
-            background: #dc3545;
+            right: -12px;
+            background: linear-gradient(135deg, #9c27b0, #e040fb);
             color: white;
             border-radius: 50%;
             padding: 2px 6px;
             font-size: 10px;
-        }
-        .product-card {
-            transition: transform 0.3s;
-            border: none;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-        .price {
-            color: #28a745;
-            font-size: 1.3rem;
             font-weight: bold;
+            min-width: 18px;
+            text-align: center;
         }
+
+        .btn-logout {
+            background: rgba(156, 39, 176, 0.2);
+            border: 1px solid #9c27b0;
+            border-radius: 8px;
+            padding: 5px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(156, 39, 176, 0.4);
+        }
+
+        .product-card {
+            background: rgba(20, 20, 40, 0.6);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(156, 39, 176, 0.2);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            border-color: #9c27b0;
+            box-shadow: 0 10px 30px rgba(156, 39, 176, 0.3);
+        }
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #9c27b0;
+        }
+
         .old-price {
-            text-decoration: line-through;
-            color: #6c757d;
             font-size: 0.9rem;
+            text-decoration: line-through;
+            color: #888;
         }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(156, 39, 176, 0.4);
+        }
+
+        .badge-new {
+            background: linear-gradient(135deg, #ff9800, #ff5722);
+            font-size: 0.7rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+
         .footer {
-            background: #343a40;
-            color: white;
-            padding: 2rem 0;
-            margin-top: 3rem;
+            background: rgba(10, 10, 20, 0.95);
+            border-top: 1px solid rgba(156, 39, 176, 0.3);
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: #9c27b0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a2e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #9c27b0;
+            border-radius: 10px;
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Навигация -->
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}">
                 <i class="fas fa-laptop-code"></i> TopStore
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
@@ -80,7 +201,7 @@
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'accounts:profile' %}">
-                                <i class="fas fa-user"></i> {{ user.username }}
+                                <i class="fas fa-user-circle"></i> {{ user.username }}
                             </a>
                         </li>
                         <li class="nav-item">
@@ -89,13 +210,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link position-relative" href="{% url 'cart:cart_detail' %}">
+                            <a class="nav-link cart-icon position-relative" href="{% url 'cart:cart_detail' %}">
                                 <i class="fas fa-shopping-cart"></i> Корзина
                                 <span class="cart-badge" id="cart-count">{{ cart_total_items|default:0 }}</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:logout' %}">
+                            <a class="nav-link btn-logout" href="{% url 'accounts:logout' %}">
                                 <i class="fas fa-sign-out-alt"></i> Выйти
                             </a>
                         </li>
@@ -116,19 +237,20 @@
         </div>
     </nav>
 
-    <!-- Основной контент -->
-    <main>
-        {% if messages %}
-            <div class="container mt-3">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    <!-- Сообщения -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
+    <!-- Основной контент -->
+    <main class="fade-in">
         {% block content %}
         {% endblock %}
     </main>
@@ -137,28 +259,86 @@
     <footer class="footer">
         <div class="container">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-4 mb-4">
                     <h5>TopStore</h5>
                     <p>Лучшие электронные товары по доступным ценам</p>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-4 mb-4">
+                    <h5>Полезные ссылки</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'catalog:product_list' %}">Каталог</a></li>
+                        <li><a href="{% url 'catalog:category_list' %}">Категории</a></li>
+                        <li><a href="{% url 'cart:cart_detail' %}">Корзина</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
                     <h5>Контакты</h5>
                     <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
                     <p><i class="fas fa-envelope"></i> info@topstore.ru</p>
                 </div>
-                <div class="col-md-4">
-                    <h5>Мы в соцсетях</h5>
-                    <a href="#" class="text-white me-2"><i class="fab fa-vk fa-2x"></i></a>
-                    <a href="#" class="text-white me-2"><i class="fab fa-telegram fa-2x"></i></a>
-                </div>
             </div>
-            <hr class="mt-3">
+            <hr>
             <p class="text-center mb-0">&copy; 2024 TopStore. Все права защищены.</p>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JQuery FIRST -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS SECOND -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Главный скрипт для корзины -->
+    <script>
+        $(document).ready(function() {
+            console.log(" jQuery загружен и готов!");
+
+            // Обработчик кнопок "В корзину"
+            $('.add-to-cart').off('click').on('click', function() {
+                console.log("🛒 Кнопка нажата!");
+
+                var productId = $(this).data('product-id');
+                var $btn = $(this);
+
+                console.log("Product ID:", productId);
+
+                // Блокируем кнопку, чтобы не нажали дважды
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Добавление...');
+
+                $.ajax({
+                    url: '/cart/add/',
+                    type: 'POST',
+                    data: {
+                        'product_id': productId,
+                        'quantity': 1,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(data) {
+                        console.log("Ответ сервера:", data);
+                        if (data.success) {
+                            $('#cart-count').text(data.cart_count);
+                            alert(' Товар добавлен в корзину!');
+                        } else if (data.need_login) {
+                            if (confirm(' Для добавления товара в корзину необходимо войти в аккаунт. Перейти на страницу входа?')) {
+                                window.location.href = '/accounts/login/';
+                            }
+                        } else {
+                            alert(' ' + (data.error || 'Ошибка при добавлении в корзину'));
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Ошибка AJAX:", error);
+                        console.error("Статус:", status);
+                        console.error("Ответ:", xhr.responseText);
+                        alert(' Произошла ошибка при добавлении в корзину');
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html('<i class="fas fa-shopping-cart"></i> В корзину');
+                    }
+                });
+            });
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

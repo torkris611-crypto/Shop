@@ -1,12 +1,15 @@
-﻿from django.shortcuts import render, get_object_or_404, redirect
+﻿from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.contrib import messages
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 import json
-from apps.catalog.models import Product
+import logging
+
+logger = logging.getLogger(__name__)
 from .models import Cart, CartItem
+from apps.catalog.models import Product
 
 
 def get_cart(request):
@@ -23,37 +26,41 @@ def get_cart(request):
 
 
 def cart_detail(request):
-    """Детали корзины"""
+    """Страница корзины"""
     cart = get_cart(request)
     items = cart.items.select_related('product').all()
 
     context = {
-        'cart': cart,
         'items': items,
-        'total_price': cart.get_total_price(),
         'total_items': cart.get_total_items(),
+        'total_price': cart.get_total_price(),
     }
     return render(request, 'cart/cart_detail.html', context)
 
 
-@require_POST
+@login_required
+@require_http_methods(["POST"])
 def add_to_cart(request):
-    """Добавить товар в корзину (с проверкой авторизации)"""
-    product_id = request.POST.get('product_id')
-    quantity = int(request.POST.get('quantity', 1))
-
-    # ПРОВЕРКА: если пользователь не авторизован
-    if not request.user.is_authenticated:
-        return JsonResponse({
-            'success': False,
-            'need_login': True,
-            'error': 'Для добавления товара в корзину необходимо войти в аккаунт'
-        })
-
+    """Добавить товар в корзину (AJAX)"""
     try:
+        # Пробуем получить JSON из body
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            # Если не JSON, пробуем получить из POST
+            data = {
+                'product_id': request.POST.get('product_id'),
+                'quantity': request.POST.get('quantity', 1)
+            }
+
+        product_id = data.get('product_id')
+        quantity = int(data.get('quantity', 1))
+
+        if not product_id:
+            return JsonResponse({'success': False, 'error': 'Не указан товар'})
+
         product = get_object_or_404(Product, id=product_id, in_stock=True)
 
-        # Проверяем наличие на складе
         if quantity > product.stock:
             return JsonResponse({
                 'success': False,
@@ -80,21 +87,50 @@ def add_to_cart(request):
         return JsonResponse({
             'success': True,
             'cart_count': cart.get_total_items(),
-            'cart_total': str(cart.get_total_price())
+            'cart_total': str(cart.get_total_price()),
+            'message': 'Товар добавлен в корзину'
         })
 
+    except Exception as e:
+        logger.error(f"Error in add_to_cart: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@login_required
+@require_http_methods(["GET"])
+def api_update_cart(request):
+    """Получить актуальные данные корзины (AJAX)"""
+    try:
+        cart = get_cart(request)
+        return JsonResponse({
+            'success': True,
+            'total_items': cart.get_total_items(),
+            'total_price': float(cart.get_total_price()),
+        })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
 
-@require_POST
 @login_required
-def update_cart_item(request):
-    """Обновить количество товара (только для авторизованных)"""
-    item_id = request.POST.get('item_id')
-    quantity = int(request.POST.get('quantity', 1))
-
+@require_http_methods(["POST"])
+def api_update_cart_item(request):
+    """Обновить количество товара в корзине (AJAX)"""
     try:
+        # Пробуем получить JSON из body
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = {
+                'item_id': request.POST.get('item_id'),
+                'quantity': request.POST.get('quantity', 1)
+            }
+
+        item_id = data.get('item_id')
+        quantity = int(data.get('quantity', 1))
+
+        if not item_id:
+            return JsonResponse({'success': False, 'error': 'Не указан товар'})
+
         cart = get_cart(request)
         cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
 
@@ -109,42 +145,55 @@ def update_cart_item(request):
             cart_item.quantity = quantity
             cart_item.save()
 
+        cart = get_cart(request)
         return JsonResponse({
             'success': True,
-            'cart_count': cart.get_total_items(),
-            'cart_total': str(cart.get_total_price())
+            'total_items': cart.get_total_items(),
+            'total_price': float(cart.get_total_price()),
         })
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
 
-@require_POST
 @login_required
-def remove_from_cart(request):
-    """Удалить товар из корзины (только для авторизованных)"""
-    item_id = request.POST.get('item_id')
-
+@require_http_methods(["POST"])
+def api_remove_from_cart(request):
+    """Удалить товар из корзины (AJAX)"""
     try:
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = {'item_id': request.POST.get('item_id')}
+
+        item_id = data.get('item_id')
+
+        if not item_id:
+            return JsonResponse({'success': False, 'error': 'Не указан товар'})
+
         cart = get_cart(request)
         cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
         cart_item.delete()
 
+        cart = get_cart(request)
         return JsonResponse({
             'success': True,
-            'cart_count': cart.get_total_items(),
-            'cart_total': str(cart.get_total_price())
+            'total_items': cart.get_total_items(),
+            'total_price': float(cart.get_total_price()),
+            'cart_empty': cart.get_total_items() == 0
         })
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
 
-@require_POST
 @login_required
-def clear_cart(request):
-    """Очистить корзину (только для авторизованных)"""
-    cart = get_cart(request)
-    cart.items.all().delete()
-
-    return JsonResponse({'success': True})
+@require_http_methods(["POST"])
+def api_clear_cart(request):
+    """Очистить корзину (AJAX)"""
+    try:
+        cart = get_cart(request)
+        cart.items.all().delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
